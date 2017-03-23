@@ -29,4 +29,4 @@ def test_neural_network():
              min_change_2 > -0.00001 and min_change_2 < 0]):
             finished_working = True
 
-    np.testing.assert_allclose([0,0,0,1,1,0,0,0], NN.output_layer_output, rtol=1e-03)
+    np.testing.assert_allclose([0,0,0,1,1,0,0,0], NN.output_layer_output, rtol=1e-03, atol=1e-03)
