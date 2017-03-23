@@ -26,6 +26,7 @@ Arguments:
         (slide) Iterate over sequence in 17nt sliding frame
         (space) Chop up each sequence into 17nt bits for inputs
 """
+
 def werk():
     """
     Train neural network on RAP binding sites
@@ -237,13 +238,8 @@ def test():
 if __name__ == '__main__':
     import docopt
     import numpy as np
-    import scipy as sp
-    import matplotlib.pyplot as plt
-    import seaborn as sns
     from Bio import SeqIO
-    import sys
     import copy
-    import pprint
     from .neural_network import neural_network
 
     args = docopt.docopt(__doc__)

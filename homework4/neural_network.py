@@ -1,11 +1,4 @@
 import numpy as np
-import scipy as sp
-import matplotlib.pyplot as plt
-import seaborn as sns
-from Bio import SeqIO
-import sys
-import copy
-import pprint
 
 class neural_network():
     def __init__(self, input_layer_nodes=8, hidden_layer_nodes=3, output_layer_nodes=8):
