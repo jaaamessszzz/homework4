@@ -15,6 +15,9 @@ Arguments:
     werk
         Perform rap1 learning task with cross-validation
 
+    test
+        Classify test data and output to tsv
+
     <partitions>
         Number of partitions to make for cross-valitation
 
@@ -22,13 +25,6 @@ Arguments:
         Sampling method for NN training input
         (slide) Iterate over sequence in 17nt sliding frame
         (space) Chop up each sequence into 17nt bits for inputs
-
-
-Options:
-    -n --normalize
-        Normalize the raw scores from the alignment by the length of the
-        shorter of the two sequences
-
 """
 def werk():
     """
@@ -64,6 +60,7 @@ def werk():
                                      for i in range(partitions)]
 
     # Cycle through negative sites subsets for cross-validation
+    separation = 0
     for index in range(int(args['<partitions>'])):
         # Set up cross-validation sets
         neg_site_list_copy = copy.deepcopy(neg_randomly_partitioned_list)
@@ -186,8 +183,15 @@ def werk():
 
         print('Positive avg: {}'.format(sum(pos_list) / len(pos_list)))
         print('Negative avg: {}'.format(sum(neg_list) / len(neg_list)))
-        print(NN.connection_matrix_1)
-        print(NN.connection_matrix_2)
+        print(NN.matrix_1_bias)
+        print(NN.matrix_2_bias)
+
+        # Output connection matrices with greatest separation between average positive and negative scores
+        if ((sum(pos_list) / len(pos_list)) - (sum(neg_list) / len(neg_list))) > separation:
+            np.savetxt('connection_matrix_1.csv', NN.matrix_1_bias, delimiter=',')
+            np.savetxt('connection_matrix_2.csv', NN.matrix_2_bias, delimiter=',')
+            separation = (sum(pos_list) / len(pos_list)) - (sum(neg_list) / len(neg_list))
+
 
 def autoencoder():
     NN = neural_network()
@@ -217,6 +221,18 @@ def autoencoder():
 
 def test():
     test_sequences = open('project_files/rap1-lieb-test.txt')
+    NN = neural_network(68, 23, 1)
+    NN.matrix_1_bias = np.loadtxt('connection_matrix_1.csv', delimiter=',')
+    NN.matrix_2_bias = np.loadtxt('connection_matrix_2.csv', delimiter=',')
+
+    NN_outputs = open('NN_predictions.txt', 'w')
+
+    for test_seq in test_sequences:
+        NN.set_input_and_expected_values(test_seq.strip())
+        NN.forward_propogation()
+        NN_outputs.write('{}\t{}\n'.format(test_seq.strip(), NN.output_layer_output[0]))
+
+    NN_outputs.close()
 
 if __name__ == '__main__':
     import docopt
@@ -240,7 +256,6 @@ if __name__ == '__main__':
 
     if args['test']:
         test()
-
 
 
 
