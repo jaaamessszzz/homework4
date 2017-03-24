@@ -89,14 +89,17 @@ def werk():
             for site in neg_site_training:
 
                 # Iterate over site in 17nt sliding frames in negative sites
-                for slice in range(len(site) - 16):
-                    if site[slice:(slice + 17)].seq not in positive_sites:
-                        NN.set_input_and_expected_values(site[slice:(slice + 17)].seq, autoencoder=False, negative=True)
-                        NN.forward_propogation()
-                        NN.backward_propogation()
-                        NN.update_weights_and_bias()
-
-                        pos_counter += 1
+                for block in range(len(site) - 16):
+                    slice = site[block:(block + 17)].seq
+                    if slice not in positive_sites:
+                        if all([slice[4] == 'C', slice[5] == 'C', slice[9] == 'C']) == False:
+                            NN.set_input_and_expected_values(slice, autoencoder=False, negative=True)
+                            NN.forward_propogation()
+                            NN.backward_propogation()
+                            NN.update_weights_and_bias()
+                            pos_counter += 1
+                        else:
+                            print(slice)
 
                     if pos_counter == len(pos_site_training):
                         for pos_site in pos_site_training:
@@ -116,10 +119,10 @@ def werk():
                 max_change_2 = NN.matrix_2_errors.max()
                 min_change_2 = NN.matrix_2_errors.min()
 
-                if any([max_change_1 < 0.000001 and max_change_1 > 0,
-                        min_change_1 > -.000001 and min_change_1 < 0]) or any(
-                    [max_change_2 < 0.000001 and max_change_2 > 0,
-                     min_change_2 > -0.000001 and min_change_2 < 0]):
+                if any([max_change_1 < 0.00000000001 and max_change_1 > 0,
+                        min_change_1 > -.00000000001 and min_change_1 < 0]) and any(
+                    [max_change_2 < 0.00000000001 and max_change_2 > 0,
+                     min_change_2 > -0.00000000001 and min_change_2 < 0]):
                     print("Stop criterion met after {} iterations".format(counter))
                     break
 
@@ -129,13 +132,17 @@ def werk():
                 number_of_blocks = int(len(site) / 17)
 
                 for block in range(number_of_blocks):
-                    if site[(block * 17):((block + 1) * 17)].seq not in positive_sites:
-                        NN.set_input_and_expected_values(site[(block * 17):((block + 1) * 17)].seq, autoencoder=False, negative=True)
-                        NN.forward_propogation()
-                        NN.backward_propogation()
-                        NN.update_weights_and_bias()
+                    slice = site[(block * 17):((block + 1) * 17)].seq
+                    if slice not in positive_sites:
+                        if all([slice[4] == 'C', slice[5] == 'C', slice[9] == 'C']) == False:
+                            NN.set_input_and_expected_values(slice, autoencoder=False, negative=True)
+                            NN.forward_propogation()
+                            NN.backward_propogation()
+                            NN.update_weights_and_bias()
+                            pos_counter += 1
 
-                        pos_counter += 1
+                        else:
+                            print(slice)
 
                     if pos_counter == len(pos_site_training):
                         for pos_site in pos_site_training:
@@ -154,7 +161,7 @@ def werk():
                 min_change_2 = NN.matrix_2_errors.min()
 
                 if any([max_change_1 < 0.00000000001 and max_change_1 > 0,
-                        min_change_1 > -.00000000001 and min_change_1 < 0]) or any(
+                        min_change_1 > -.00000000001 and min_change_1 < 0]) and any(
                     [max_change_2 < 0.00000000001 and max_change_2 > 0,
                      min_change_2 > -0.00000000001 and min_change_2 < 0]):
                     print("Stop criterion met after {} iterations".format(counter))
